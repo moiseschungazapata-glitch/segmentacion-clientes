@@ -3,6 +3,7 @@ import type { SegmentationResult } from '../../types/Segmentation';
 import { CUSTOMERS_CHANGED_EVENT, getLastSegmentation, SEGMENTATION_STORAGE_KEY } from '../../services/customerService';
 import Modal from '../../components/ui/Modal';
 import './segmentDetail.css';
+import ValueLevelBadge from '../../components/ui/ValueLevelBadge';
 
 const number = (value: number) => new Intl.NumberFormat('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
 
@@ -30,10 +31,10 @@ export default function SegmentDetail({ segmentId, onClose }: { segmentId: numbe
   return (
     <Modal title={`Detalle del segmento ${segmentId}`} description="Clientes y estadísticas del grupo en la segmentación vigente." eyebrow="RESULTADOS DE K-MEANS" closeLabel="Cerrar detalle" className="segment-detail-modal" onRequestClose={onClose}>
       {loading ? <p role="status">Consultando el segmento…</p> : error ? <div className="notice error" role="alert">{error} <button onClick={refresh}>Volver a consultar</button></div> : !group || !result ? <div className="segment-detail-empty" role="status"><h3>Este segmento ya no tiene un resultado vigente</h3><p>Los clientes o la segmentación cambiaron. Cierra este detalle y vuelve a ejecutar o consulta los grupos actuales.</p></div> : <>
-        <dl className="segment-detail-stats"><div><dt>Clientes</dt><dd>{group.cantidad}</dd></div><div><dt>Gasto promedio</dt><dd>S/ {number(group.gastoPromedio)}</dd></div><div><dt>Visitas promedio</dt><dd>{number(group.visitasPromedio)}</dd></div><div><dt>Antigüedad promedio</dt><dd>{number(group.antiguedadPromedio)} <small>meses</small></dd></div></dl>
+        <dl className="segment-detail-stats"><div><dt>Clientes</dt><dd>{group.cantidad}</dd></div><div><dt>Gasto promedio</dt><dd>S/ {number(group.gastoPromedio)}<ValueLevelBadge value={group.gastoPromedio} baseline={result.escalado.medias[0]} /></dd></div><div><dt>Visitas promedio</dt><dd>{number(group.visitasPromedio)}<ValueLevelBadge value={group.visitasPromedio} baseline={result.escalado.medias[1]} /></dd></div><div><dt>Antigüedad promedio</dt><dd>{number(group.antiguedadPromedio)} <small>meses</small><ValueLevelBadge value={group.antiguedadPromedio} baseline={result.escalado.medias[2]} /></dd></div></dl>
         <div className="segment-members-heading"><h3>Clientes del segmento</h3><span>{group.cantidad} de {result.cantidadProcesada} clientes analizados</span></div>
         <div className="table-scroll"><table><caption className="sr-only">Clientes asignados al segmento {segmentId}</caption><thead><tr><th scope="col">Código</th><th scope="col">Cliente</th><th scope="col">Gasto acumulado</th><th scope="col">Visitas en 6 meses</th><th scope="col">Antigüedad</th></tr></thead><tbody>{members.map((customer) => <tr key={customer.id}><td><span className="code">{customer.id}</span></td><td className="customer-name">{customer.nombre}</td><td>S/ {number(customer.gastoAcumulado)}</td><td>{customer.visitas6Meses}</td><td>{customer.antiguedadMeses} meses</td></tr>)}</tbody></table></div>
-        <p className="segment-detail-note">Los promedios corresponden únicamente a los clientes de este grupo. El número de segmento es un identificador, no una categoría comercial fija.</p>
+        <p className="segment-detail-note">Alto: más del 15 % sobre el promedio general; Medio: dentro del ±15 %; Bajo: más del 15 % por debajo. El número de segmento es un identificador, no una categoría comercial fija.</p>
       </>}
       <div className="modal-actions"><button type="button" className="primary" onClick={onClose}>Cerrar detalle</button></div>
     </Modal>

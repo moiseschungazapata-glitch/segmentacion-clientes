@@ -1,7 +1,7 @@
 import type { SegmentationGroup } from '../../types/Segmentation';
 
-type Level = 'superior' | 'similar' | 'inferior';
-const level = (value: number, baseline: number): Level => {
+export type ValueLevel = 'superior' | 'similar' | 'inferior';
+export const classifyValue = (value: number, baseline: number): ValueLevel => {
   const tolerance = Math.max(1, Math.abs(value), Math.abs(baseline)) * Number.EPSILON * 4;
   return value > baseline * 1.15 + tolerance ? 'superior' : value < baseline * 0.85 - tolerance ? 'inferior' : 'similar';
 };
@@ -16,9 +16,9 @@ export function getRecommendations(groups: SegmentationGroup[]) {
     antiguedadPromedio: groups.reduce((sum, group) => sum + group.antiguedadPromedio * (group.cantidad / total), 0),
   };
   return groups.map((group) => {
-    const spending = level(group.gastoPromedio, baseline.gastoPromedio);
-    const visits = level(group.visitasPromedio, baseline.visitasPromedio);
-    const tenure = level(group.antiguedadPromedio, baseline.antiguedadPromedio);
+    const spending = classifyValue(group.gastoPromedio, baseline.gastoPromedio);
+    const visits = classifyValue(group.visitasPromedio, baseline.visitasPromedio);
+    const tenure = classifyValue(group.antiguedadPromedio, baseline.antiguedadPromedio);
     let title = 'Fortalecer la relación comercial';
     let proposal = 'Probar una campaña de beneficios por continuidad de compra y revisar si aumenta la participación del grupo.';
     if (group.gastoPromedio === 0 && group.visitasPromedio === 0) {

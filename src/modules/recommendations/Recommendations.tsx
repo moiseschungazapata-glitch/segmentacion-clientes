@@ -4,6 +4,7 @@ import { CUSTOMERS_CHANGED_EVENT, getLastSegmentation, SEGMENTATION_STORAGE_KEY 
 import Icon from '../../components/ui/Icon';
 import { getRecommendations } from './recommendationRules';
 import './recommendations.css';
+import ValueLevelBadge from '../../components/ui/ValueLevelBadge';
 
 const number = (value: number) => new Intl.NumberFormat('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
 const comparisons = { superior: 'Por encima del promedio', inferior: 'Por debajo del promedio', similar: 'Cerca del promedio' };
@@ -34,10 +35,10 @@ export default function Recommendations({ onSegmentation }: { onSegmentation: ()
         <div className="recommendations-grid">{recommendations.map((recommendation) => <article className="card recommendation-card" key={recommendation.segmentId} aria-label={`Recomendación del segmento ${recommendation.segmentId}`}>
           <div className="recommendation-heading"><span className="recommendation-segment">Segmento {recommendation.segmentId}</span><span>{recommendation.quantity} {recommendation.quantity === 1 ? 'cliente' : 'clientes'}</span></div>
           <h2>{recommendation.title}</h2><p className="recommendation-proposal">{recommendation.proposal}</p>
-          <div className="recommendation-evidence"><h3>¿En qué se basa?</h3><dl>{recommendation.metrics.map((metric) => <div key={metric.key}><dt>{metric.label}</dt><dd><strong>{metric.key === 'spending' ? 'S/ ' : ''}{number(metric.average)}</strong><span>{comparisons[metric.level]}</span><small>Promedio general: {metric.key === 'spending' ? 'S/ ' : ''}{number(metric.baseline)}</small></dd></div>)}</dl></div>
+          <div className="recommendation-evidence"><h3>¿En qué se basa?</h3><dl>{recommendation.metrics.map((metric) => <div key={metric.key}><dt>{metric.label}</dt><dd><strong>{metric.key === 'spending' ? 'S/ ' : ''}{number(metric.average)}</strong><ValueLevelBadge value={metric.average} baseline={metric.baseline} /><span>{comparisons[metric.level]}</span><small>Promedio general: {metric.key === 'spending' ? 'S/ ' : ''}{number(metric.baseline)}</small></dd></div>)}</dl></div>
           <p className="recommendation-tenure">{recommendation.tenureAction}</p>
         </article>)}</div>
-        <p className="recommendation-disclaimer">Propuestas orientativas, no conclusiones definitivas sobre las personas. Se comparan los promedios del grupo con los de todos los clientes analizados; una diferencia mayor al 15 % se considera superior o inferior. Revisa el contexto comercial antes de aplicar una campaña.</p>
+        <p className="recommendation-disclaimer">Alto: más del 15 % sobre el promedio general. Medio: dentro del ±15 %. Bajo: más del 15 % por debajo. Estas etiquetas describen las variables del grupo, no el valor de una persona. Las propuestas comerciales son orientativas.</p>
       </>}
     </>
   );
